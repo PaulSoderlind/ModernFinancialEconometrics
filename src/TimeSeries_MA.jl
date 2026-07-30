@@ -6,7 +6,7 @@ Log likelihood function for MA(q) process. Same as
 
 """
 function MAqLL(par::Vector,y)
-    (θ,σ) = (par[1:end-1],par[end])
+    (θ,σ) = (par[1:end-1],abs(par[end]))
     q     = length(θ)
     ϵ     = ARMAFilter(y,-θ)                #ϵ is AR(q) with coefs -θ
     LL_i  = logpdfNorm.(ϵ./σ) .- log(σ)     #log of N(0,1) pdf - log(σ)

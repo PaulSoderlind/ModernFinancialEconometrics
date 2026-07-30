@@ -12,15 +12,6 @@ end
 
 
 """
-    logisticFn(v)
-
-logistic function
-
-"""
-logisticFn(v) = 1.0./(1.0 .+ exp.(-v))
-
-
-"""
     LogitLL(b,y,x)
 
 Loglikelihood fn for logit model

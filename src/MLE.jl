@@ -26,9 +26,9 @@ function MLE(LLtFun::Function,par0,y,x,lower=nothing,upper=nothing)
     NoBounds = (isnothing(lower) && isnothing(upper)) || (all(!isfinite,lower) && all(!isfinite,upper))
 
     if NoBounds
-        Sol = optimize(par->-sum(LLtFun(par,y,x)),par0) #minimize -sum(LLt)
+        Sol = optimize(par->-sum(LLtFun(par,y,x)),par0,BFGS()) #minimize -sum(LLt)
     else
-        Sol = optimize(par->-sum(LLtFun(par,y,x)),lower,upper,par0)
+        Sol = optimize(par->-sum(LLtFun(par,y,x)),lower,upper,par0,Fminbox(BFGS()))
     end
     parHat = Optim.converged(Sol) ? Optim.minimizer(Sol) : fill(NaN,length(par0))  #the optimal solution
     LL_t = LLtFun(parHat,y,x)

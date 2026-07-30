@@ -1,6 +1,6 @@
 module FinEcmt_OLS
 
-using Statistics, LinearAlgebra, DelimitedFiles, Distributions, StatsBase
+using Statistics, LinearAlgebra, DelimitedFiles, Random, Distributions, StatsBase
 import Printf
 using FiniteDiff: finite_difference_jacobian as jacobian
 
@@ -10,15 +10,15 @@ DeltaMethod, DrawBlocks, EMA, EWportf,
 FindNNPanel, FindNN, FirstDiff,
 IndividualDemean, KolSmirTest,
 HistcNorm, HistAsh,
-NWCovPs, OLSyxReplaceNaN, OlsAutoCorr, OlsBasic, OlsGM, OlsNW, RegressionTable,
+NWCovPs, OLSyxReplaceNaN, OlsAutoCorr, OlsBasic, OlsBootstrap, OlsGM, OlsNW, RegressionTable,
 OlsR2Test, OlsSure, OlsWhitesTest,RegressionFit, VIF, DiagnosticsTable, DiagnosticsNoniidTable,
 PanelOls, PanelReshuffle, DummiesCreate, TimeDummiesTTN,
 FixedIndivEffects,FixedTimeEffects, FixedIndivTimeEffects, FixedTimeIndivEffects, FWonZRepeated!,
 PutDataInNT, Readcsv,
 QuantRegrIRLS, ReturnStats, RidgeRegression, StandardiseYX,
-TwoSLS, excise, lag,
+TwoSLS, excise, lag, lag2,
 printblue, printlnPs, printmagenta, printmat, printred, printyellow, @doc2,
-rankPs, sortLoHi, cdfNorm, logpdfNorm, ContingencyTable
+rankPs, sortLoHi, cdfNorm, logpdfNorm, ContingencyTable, StandardiseX
 
 include("BinScatter.jl")
 include("CovNW.jl")
@@ -26,6 +26,7 @@ include("DeltaMethod.jl")
 include("DistributionTests.jl")
 include("HistAsh.jl")
 include("Ols.jl")
+include("OlsBootstrap.jl")
 include("OlsDiagnostics.jl")
 include("OlsSure.jl")
 include("PanelOls.jl")
@@ -34,7 +35,6 @@ include("PortfolioSorts.jl")
 include("printmat.jl")
 include("QuantRegrIRLS.jl")
 include("RidgeRegression.jl")
-include("SimulationFunctions.jl")
 include("TwoSLS.jl")
 include("UtilityFunctions.jl")
 

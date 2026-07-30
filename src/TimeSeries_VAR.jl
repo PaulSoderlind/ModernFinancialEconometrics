@@ -30,15 +30,11 @@ function ARpEst(y,p)
 
     T    = length(y)
 
-    x = fill(NaN,T,p+1)             #build matrix of regressors
-    for s in 1:p                    #or reduce(hcat,lag(y,s) for s=1:p)
-        x[:,s] = lag(y,s)
-    end
-    x[:,end] = ones(T)              #add constant last
+    x = [lag2(y,1:p) ones(T)]       #build matrix of regressors, add constant last
     #printmat([y x][1:10,:])        #uncomment to see the regressors
 
     b = x[p+1:end,:]\y[p+1:end]     #OLS, cut the first p observatioms
-    a = b[1:end-1]                     #slopes
+    a = b[1:end-1]                  #slopes
 
     return a
 

@@ -1,5 +1,5 @@
 """
-    OlsSure(Y,X,NWQ=false,m=0)
+    OlsSure(Y,X,NWQ=true,m=0)
 
 LS of `Y` on `X`; where `Y` is Txn, and `X` is the same for all regressions
 
@@ -17,7 +17,7 @@ LS of `Y` on `X`; where `Y` is Txn, and `X` is the same for all regressions
 - `R²::Matrix`:    1xn matrix, R² values
 
 """
-function OlsSure(Y,X,NWQ=false,m=0)
+function OlsSure(Y,X,NWQ=true,m=0)
 
     (T,n) = (size(Y,1),size(Y,2))
     k     = size(X,2)

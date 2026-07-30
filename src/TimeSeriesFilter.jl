@@ -15,7 +15,7 @@ function EMA(x,m=1)
     y = fill(NaN,T,n)                       #y[t] = (x[t-1] + x[t])/2
     for t = 1:T
         vv     = max(1,t-q):t                 #with q=2; 1:1,1:2,1:3,2:4
-        y[t,:] = sum(x[vv,:],dims=1)/m
+        y[t,:] = mean(x[vv,:],dims=1)
     end
 
     return y

@@ -42,7 +42,7 @@ function LassoEN(Y,X,γM=0,λ=0,β₀=0)
   nγ = length(γM)
 
   b_ls = X\Y
-  βM₀ = isa(β₀,Number) ? fill(β₀,K) : β₀   #exand to vector, if needed
+  βM₀ = isa(β₀,Number) ? fill(β₀,K) : β₀   #expand to vector, if needed
 
   P1 = X'X/T + λ*I                         #from (Xb-Y)'(Xb-Y) and λb'b
   P2 = -2X'Y/T

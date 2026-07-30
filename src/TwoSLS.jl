@@ -1,5 +1,5 @@
 """
-    TwoSLS(y,x,z,NWQ=false,m=0)
+    TwoSLS(y,x,z,NWQ=true,m=0)
 
 ### Input
 - `y::VecOrMat`:      Tx1 or T-vector of the dependent variable
@@ -25,7 +25,7 @@
 
 
 """
-function TwoSLS(y,x,z,NWQ=false,m=0)
+function TwoSLS(y,x,z,NWQ=true,m=0)
 
     (Ty,n) = (size(y,1),size(y,2))
     (k,L)  = (size(x,2),size(z,2))
@@ -61,7 +61,21 @@ function TwoSLS(y,x,z,NWQ=false,m=0)
         Covb = var(res)*inv(Sxz*Szz_1*Sxz')
     end
 
-    fnOutput = (;res,yhat,Covb,R2,R2_stage1,δ_stage1=δ,Stdδ_stage1=Stdδ)
+
+    _isxNot0(A,atol=1e-10) = any(x -> !isapprox(x,0;atol),A)      #used in DWH test
+
+    DWHtest = NaN
+    cols = findall(_isxNot0,eachcol(resx))             #Durbin-Wu-Hausman test
+    k2   = length(cols)
+    if k2 >= 1
+        resxb = view(resx,:,cols)
+        R = [zeros(k2,k) I]
+        (bx,_,_,Vx,_) = OlsNW(y,[x resxb],m)          #regress y on (x,residual stage 1)
+        DWHtest = (R*bx)'*inv(R*Vx*R')*(R*bx)
+    end
+
+
+    fnOutput = (;res,yhat,Covb,R2,R2_stage1,δ_stage1=δ,Stdδ_stage1=Stdδ,DWHtest)
 
     return b, fnOutput
 

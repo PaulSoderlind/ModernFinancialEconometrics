@@ -28,15 +28,14 @@ highest values (in `vH`) to `true`. All other elements
 """
 function sortLoHi(x,v,m)
 
-    x  = Float64.(x)           #cindependent copy of the input (x), float
-    nv  = sum(v)
+    x  = Float64.(x)           #independent copy of the input (x), float
+    nv = sum(v)
     (nv < 2m) && error("sum(v) < 2m")
 
-    (vL,vH) = [falses(length(x)) for i=1:2]
-    x[.!v]                .= Inf         #v[i] = false are put to Inf to sort last
-    r                      = rankPs(x)   #lowest are first
-    vL[r.<=m]             .= true        #eg. 1:5, with m=5
-    vH[(nv-m+1).<=r.<=nv] .= true        #eg. 8:12, with nv=12
+    x[.!v] .= Inf                     #v[i] = false are put to Inf to sort last
+    r       = rankPs(x)               #lowest are first
+    vL      = r .<= m                 #eg. 1:5, with m=5
+    vH      = (nv-m+1) .<= r .<= nv   #eg. 8:12, with nv=12
     
     return vL, vH
 end

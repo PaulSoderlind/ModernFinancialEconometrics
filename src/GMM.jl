@@ -25,8 +25,9 @@ function GMMExactlyIdentified(GmmMomFn::Function,x,par0,m)
 
     T = size(x,1)
 
-    Sol  = nlsolve(p->meanV(GmmMomFn(p,x)),par0)   #numerically solve for the estimates
-    par1 = Sol.zero
+    #Sol  = nlsolve(p->meanV(GmmMomFn(p,x)),par0)   #numerically solve for the estimates
+    #par1 = Sol.zero
+    par1  = nlsolvePs(p->meanV(GmmMomFn(p,x)),par0)   #numerically solve for the estimates
 
     g = GmmMomFn(par1,x)        #Tx2, moment conditions
     Σ = CovNW(g,m,1)          #variance of sqrt(T)*gbar, NW with m lags
@@ -43,7 +44,7 @@ end
 """
     GMMgbarWgbar(GmmMomFn::Function,W,x,par0,m;SkipCovQ=false)
 
-Estimates GMM coeffs and variance-covariance matrix from A*gbar. The Jacobian
+Estimates GMM coeffs and variance-covariance matrix from gbar'W*gbar. The Jacobian
 is calculated numerically.
 
 ### Input
@@ -67,21 +68,29 @@ function GMMgbarWgbar(GmmMomFn::Function,W,x,par0,m;SkipCovQ=false)
 
     T = size(x,1)
 
-    Sol  = optimize(p->GmmMomLossFn(GmmMomFn,p,x,W),par0)
+    Sol  = optimize(p->GmmMomLossFn(GmmMomFn,p,x,W),par0,BFGS())
     par1 = Optim.minimizer(Sol)
 
-    g = GmmMomFn(par1,x)        #Tx2, moment conditions
-    Σ = CovNW(g,m,1)          #variance of sqrt(T)*gbar, NW with m lags
+    g = GmmMomFn(par1,x)        #Txq, moment conditions
+    Σ = CovNW(g,m,1)            #variance of sqrt(T)*gbar, NW with m lags
 
     if SkipCovQ
         (D,V_T,StdErr) = (NaN,NaN,NaN)
     else
-        D   = jacobian(par->meanV(GmmMomFn(par,x)),par1)  #Numerical Jacobian
-        V_T = inv(D'W*D)*D'W*Σ*W'D*inv(D'W*D)/T
+        D      = jacobian(par->meanV(GmmMomFn(par,x)),par1)  #Numerical Jacobian
+        Γ      = inv(D'W*D)*D'W
+        V_T    = Γ*Σ*Γ'/T
         StdErr = sqrt.(diag(V_T))
+        if size(g,2) > length(par0)            #overidentified
+            Ψ     = (I-D*Γ)*Σ*(I-D*Γ)'
+            gbar  = meanV(GmmMomFn(par1,x))
+            gTest = T*gbar'pinv(Ψ)*gbar
+        else
+            gTest = NaN
+        end
     end
 
-    return par1, StdErr, V_T, Σ, D
+    return par1, StdErr, V_T, Σ, D, gTest
 
 end
 
@@ -105,16 +114,39 @@ function GMMAgbar(GmmMomFn::Function,A,x,par0,m)
 
     T = size(x,1)
 
-    Sol  = nlsolve(p->A*meanV(GmmMomFn(p,x)),par0)   #numerically solve for the estimates
-    par1 = Sol.zero
+    #Sol  = nlsolve(p->A*meanV(GmmMomFn(p,x)),par0)   #numerically solve for the estimates
+    #par1 = Sol.zero
+    par1 = nlsolvePs(p->A*meanV(GmmMomFn(p,x)),par0)   #numerically solve for the estimates
 
     g = GmmMomFn(par1,x)        #Tx2, moment conditions
     Σ = CovNW(g,m,1)          #variance of sqrt(T)*gbar, NW with m lags
 
-    D   = jacobian(par->meanV(GmmMomFn(par,x)),par1)  #Numerical Jacobian
-    V_T = inv(A*D)*A*Σ*A'inv(A*D)'/T
+    D      = jacobian(par->meanV(GmmMomFn(par,x)),par1)  #Numerical Jacobian
+    Γ      = inv(A*D)*A
+    V_T    = Γ*Σ*Γ'/T
     StdErr = sqrt.(diag(V_T))
+    if size(g,2) > length(par0)            #overidentified
+        Ψ     = (I-D*Γ)*Σ*(I-D*Γ)'
+        gbar  = meanV(GmmMomFn(par1,x))
+        gTest = T*gbar'pinv(Ψ)*gbar
+    else
+        gTest = NaN
+    end
 
-    return par1, StdErr, V_T, Σ
+    return par1, StdErr, V_T, Σ, gTest
 
+end
+
+
+"""
+    nlsolvePs(fn::Function,x0,ConCrit=1e-6)
+
+Solve the function `fn` for the vector of roots, using Optim.jl rather than NLsolve.jl.
+"""
+function nlsolvePs(fn::Function,x0,ConCrit=1e-6)
+  Sol = optimize(p->sum(abs2,fn(p)),x0,BFGS())
+  x1   = Optim.minimizer(Sol)
+  res = fn(x1)
+  x = maximum(abs.(res)) < ConCrit ? x1 : NaN
+  return x
 end

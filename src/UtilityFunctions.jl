@@ -114,6 +114,23 @@ end
 
 
 """
+lag2(x,nVector)
+
+Create an extended matrix for differen lags.
+
+### Input
+- `x::VecOrMat`:      T Vector or Txk matrix
+- `nVector::Int or Vector`: scalar or vector , order of lag, for instance, [1,3]
+
+### Output
+- `z::Array`:  Tx(k*length(nVector) matrix of lags
+
+
+"""
+lag2(x,nVector) = hcat([lag(x,s) for s in nVector]...)
+
+
+"""
     excise(x...;xtype=Any)
 
 Remove all lines where the is a NaN/missing in any of the x arrays
@@ -154,8 +171,6 @@ Find rows (if Keepdim==1) which have no NaNs missing in other dimensions (eg. in
 ### Notice
 - Set Keepdim=2 if we should instead look for NaNs/missings along rows (and other dimensions).
 - For heterogenous arrays like `x=[x1,x1]`, use `FindNN(x...)`
-
-Paul.Soderlind@unisg.ch
 
 """
 function FindNN(x...;Keepdim=1)
@@ -252,3 +267,24 @@ function ContingencyTable(x,y,xCat=[true,false],yCat=[true,false];DoRelativeQ=tr
 
 end
 
+
+"""
+    StandardiseYX(x...)
+
+Demean and make std=1. Handles one or several inputs, so it can be
+called as `x = StandardiseYX(x0)` or `(y,x) = StandardiseYX(x0,y0)` etc.
+
+"""
+function StandardiseYX(x...)
+
+  _StandardiseX(z) = (z .- mean(z,dims=1))./std(z,dims=1)
+
+  n = length(x)
+
+  z  = map(v->_StandardiseX(v),x)          #create a tuple of outputs
+
+  (n==1) && (z = only(z))                  #if a single array in the tuple
+
+  return z
+
+end

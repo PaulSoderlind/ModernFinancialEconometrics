@@ -142,3 +142,34 @@ function LocalLinearRegression(y,x,xGrid,h,vv = :all,DoCovb=true,KernelFun=Gauss
     return aHat, StdaHat
 
 end
+
+
+"""
+  CrossValidateKernelR(y,x,hM)
+
+### Input
+- `y::Vector`:      T-vector with data for the dependent variable
+- `x::Vector`:      T-vector with data for the regressor
+- `hM::Vector`:     Nh-vector of bandwidth values (h) to investigate
+
+"""
+function CrossValidateKernelR(y,x,hM)
+
+    T    = length(y)
+    Nh   = length(hM)
+
+    EPEM = fill(NaN,T,Nh)
+    for t in 1:T
+        local v_No_t
+        v_No_t = setdiff(1:T,t)     #exclude t from estimation
+        for (j,h) in enumerate(hM)                #loop over hM[j] values
+            local b_t
+            b_t,      = KernelRegression(y,x,x[t],h,v_No_t,false)  #calculate fitted b(x[t])
+            EPEM[t,j] = (y[t] - b_t[1])^2     #out-of-sample error for obs t
+        end
+    end
+
+    EPE = mean(EPEM,dims=1)'
+
+    return EPE
+end
