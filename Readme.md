@@ -18,7 +18,7 @@ This repository contains Julia code for a Financial Econometrics (MSc) course at
 
 1. ChapterNumber_Topic.ipynb are notebooks organised around different topics. The chapter numbers correspond to the lecture notes (pdf), where more details are given (and the notation is explained).
 
-2. Most statistical/econometric functions are organised in local modules, typically loaded at the top of the notebooks. The source code is in the src subfolder.
+2. Most statistical/econometric functions are organised in local modules, typically loaded at the top of the notebooks. The source code is in the src subfolder. In recent Julia versions, IJulia and VScode report some warnings when compiling the modules (the first run). Rerun the cell and then it typically works.
 
 3. NotebooksAsPDF.pdf is a print-out of all notebooks. 
 
@@ -28,7 +28,7 @@ This repository contains Julia code for a Financial Econometrics (MSc) course at
 
 6. The plots are in png format. If you want sharper plots, change `default(fmt = :png)` to `default(fmt = :svg)` in one of the top cells.
 
-7. The current version is tested on Julia 1.11.
+7. The current version is tested on Julia 1.12.
 
 
 # Relation to Other Julia Econometrics Codes
