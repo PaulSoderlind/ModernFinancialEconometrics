@@ -17,8 +17,8 @@ FixedIndivEffects,FixedTimeEffects, FixedIndivTimeEffects, FixedTimeIndivEffects
 PutDataInNT, Readcsv,
 QuantRegrIRLS, ReturnStats, RidgeRegression, StandardiseYX,
 TwoSLS, excise, lag, lag2,
-printblue, printlnPs, printmagenta, printmat, printred, printyellow, @doc2,
-rankPs, sortLoHi, cdfNorm, logpdfNorm, ContingencyTable, StandardiseX
+printblue, printlnPs, printmagenta, printmat, printred, printyellow,
+rankPs, sortLoHi, cdfNorm, logpdfNorm, ContingencyTable, StandardiseX, @doc2
 
 include("BinScatter.jl")
 include("CovNW.jl")
