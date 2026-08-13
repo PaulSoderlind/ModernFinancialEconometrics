@@ -5,8 +5,8 @@ import Printf
 using FiniteDiff: finite_difference_jacobian as jacobian
 
 export BinScatter, BinDummies,
-JarqueBeraTest, CompanionFormAR, CovNW, CovToCor,
-DeltaMethod, DrawBlocks, EMA, EWportf,
+JarqueBeraTest, CovNW, CovToCor,
+DeltaMethod, EWportf,
 FindNNPanel, FindNN, FirstDiff,
 IndividualDemean, KolSmirTest,
 HistcNorm, HistAsh,
@@ -18,7 +18,7 @@ PutDataInNT, Readcsv,
 QuantRegrIRLS, ReturnStats, RidgeRegression, StandardiseYX,
 TwoSLS, excise, lag, lag2,
 printblue, printlnPs, printmagenta, printmat, printred, printyellow,
-rankPs, sortLoHi, cdfNorm, logpdfNorm, ContingencyTable, StandardiseX, @doc2
+rankPs, sortLoHi, cdfNorm, logpdfNorm, ContingencyTable, StandardiseYX, @doc2
 
 include("BinScatter.jl")
 include("CovNW.jl")

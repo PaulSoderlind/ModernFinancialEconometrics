@@ -40,7 +40,7 @@ taken from the header.
 - `SkipCols::Int`:              number of leading columns to skip (often 1)
 - `NaNCode::String or Number`:  indicator for missing value in the file ("NA",-999.99, etc)
 - `ToFloat::Bool`:              if true: convert all Ints and Floats to Float64
-- `delim::Char`:                typically ',' or '\t'
+- `delim::Char`:                typically ',' or `'\\t'`  (just one backslash in real code)
 
 ### Output
 - `d::NamedTuple`:              with data, as d.X, d.Y, etc

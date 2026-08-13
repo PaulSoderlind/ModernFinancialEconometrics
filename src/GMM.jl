@@ -4,7 +4,10 @@
 Calculate the sample average of each column of `x` and return a vector of them.
 
 """
-meanV(x) = vec(mean(x,dims=1));    #mean of each column, transformed into a vector
+function meanV(x)
+    xbar = vec(mean(x,dims=1))    #mean of each column, transformed into a vector
+    return xbar
+end
 
 
 """
