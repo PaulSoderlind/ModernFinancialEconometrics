@@ -23,9 +23,9 @@ function OlsGM(Y,X)
     Yhat = X*b
     u    = Y - Yhat
 
-    σ²   = var(u)
+    σ²   = var(u;corrected=false)        #using 1/T, not 1/(T-1)
     V    = inv(X'X)*σ²
-    R²   = 1 - σ²/var(Y)
+    R²   = 1 - var(u)/var(Y)
 
     return b, u, Yhat, V, R²
 

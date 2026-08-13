@@ -34,6 +34,8 @@ an intercept for the test to be useful.
 ### Output
 - `RegrStat::Number`: test statistic
 - `pval::Number`:     p-value
+- `b::Vector`:        coefficients in regressing `u^2` on w 
+- `tstat:Vector`:     t-stats for `b`
 
 """
 function OlsWhitesTest(u,x)
@@ -47,13 +49,15 @@ function OlsWhitesTest(u,x)
         vv        = vv + 1
     end
 
-    R² = OlsGM(u.^2,w)[5]             #[5] picks out output 5
+    (b,_,_,V,R²) = OlsGM(u.^2,w)
     df = rank(w) - 1                    #number of independent regressors in w
-
     WhiteStat = T*R²/(1-R²)
     pval      = ccdf(Chisq(df),WhiteStat)
+    #printmat(u,u.^2,w)
+    println(R²)
+    tstat = b./sqrt.(diag(V))
 
-    return WhiteStat, pval
+    return WhiteStat, pval, b, tstat
 
 end
 
@@ -177,7 +181,7 @@ function DiagnosticsTable(X,u,R²,xNames="")
 
   printblue("Test of all slopes = 0")
   df = k - 1              #number of slope coefficients
-  (RegrStat,pval) = OlsR2Test(R²,T,df)
+  (RegrStat,pval) = OlsR2Test(R²,T,df)[1:2]
   printmat([RegrStat,pval],rowNames=["stat","p-val"])
 
   printblue("Measures of fit")
