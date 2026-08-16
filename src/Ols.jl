@@ -17,7 +17,8 @@ LS of Y on X; for one dependent variable, Gauss-Markov assumptions
 """
 function OlsGM(Y,X)
 
-    T    = size(Y,1)
+    (Y,X) = excise(Y,X)             #keep obs with non-missings
+    T     = size(Y,1)
 
     b    = X\Y
     Yhat = X*b
@@ -52,13 +53,14 @@ LS of Y on X; for one dependent variable, using Newey-West covariance matrix
 """
 function OlsNW(Y,X,m=0)
 
+    (Y,X) = excise(Y,X)             #keep obs with non-missings
     T    = size(Y,1)
 
     b    = X\Y
     Yhat = X*b
     u    = Y - Yhat
 
-    S    = CovNW(X.*u,m)         #Newey-West covariance matrix
+    S    = CovNW(X.*u,m)           #Newey-West covariance matrix
     Sxx  = X'X
     V    = inv(Sxx)'S*inv(Sxx)     #covariance matrix of b
     R²   = 1 - var(u)/var(Y)
