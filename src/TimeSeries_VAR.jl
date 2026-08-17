@@ -21,7 +21,8 @@ end
 """
     ARpEst(y,p)
 
-Estimate an AR(p) model (with an intercept) on the data in a vector `y`.
+Estimate an AR(p) model (with an intercept) on the data in a vector `y`. Handles
+missing values.
 
 Output: the slope coefficients (not the intercept).
 
@@ -33,7 +34,9 @@ function ARpEst(y,p)
     x = [lag2(y,1:p) ones(T)]       #build matrix of regressors, add constant last
     #printmat([y x][1:10,:])        #uncomment to see the regressors
 
-    b = x[p+1:end,:]\y[p+1:end]     #OLS, cut the first p observatioms
+    (y,x) = excise(y,x)             #keep obs with non-missings
+
+    b = x\y                         #OLS
     a = b[1:end-1]                  #slopes
 
     return a

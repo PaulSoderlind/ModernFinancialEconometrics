@@ -23,7 +23,7 @@ function AutoCorr(x,plags=1)
   autoc = fill(NaN,K)
   for (i,p) in enumerate(plags)
     x_p       = lag(x,p)
-    vv        = FindNN(x,x_p)           #find record with non-missings
+    vv        = FindNN(x,x_p)           #find obs with non-missings
     Ti        = sum(vv)
     autcov_p  = dot(x[vv].-xbar,x_p[vv].-xbar)/Ti
     autoc[i]  = autcov_p./Varx                   #autocorrelation
