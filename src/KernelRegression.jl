@@ -54,9 +54,6 @@ robust standard errors.
 - `DoCovb::Bool`:    If true, the standard error of the estimate is also calculated
 - `KernelFun::Function`: Function used as kernel.
 
-### Remark
-- The `vv` and `DoCovb=false` options are useful for speeding up the cross-validation below.
-
 """
 function KernelRegression(y0,x0,xGrid,h,vv=:all,DoCovb=true,KernelFun=GaussianKernel)
 
