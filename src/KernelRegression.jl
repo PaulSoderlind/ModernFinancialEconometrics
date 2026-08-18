@@ -58,16 +58,18 @@ robust standard errors.
 - The `vv` and `DoCovb=false` options are useful for speeding up the cross-validation below.
 
 """
-function KernelRegression(y,x,xGrid,h,vv = :all,DoCovb=true,KernelFun=GaussianKernel)
+function KernelRegression(y0,x0,xGrid,h,vv=:all,DoCovb=true,KernelFun=GaussianKernel)
 
     if vv != :all
-        (y,x) = (y[vv],x[vv])
+        (y,x) = (view(y0,vv),view(x0,vv))
+    else
+        (y,x) = (y0,x0)
     end
 
-    Ngrid = length(xGrid)                  #number of grid points
+    (T,Ngrid) = (length(y),length(xGrid))                  #number of grid points
 
     (bHat,StdbHat) = (fill(NaN,Ngrid),fill(NaN,Ngrid))         #b[x(t)]
-    for i = 1:Ngrid                        #loop over elements in xGrid
+    for i in 1:Ngrid                          #loop over elements in xGrid
         zi  = (x .- xGrid[i])/h
         w   = KernelFun.(zi)
         w05 = sqrt.(w)
@@ -78,6 +80,7 @@ function KernelRegression(y,x,xGrid,h,vv = :all,DoCovb=true,KernelFun=GaussianKe
         else                               #point estimate only
             bHat[i] = w05\(w05.*y)
         end
+
     end
 
     return bHat, StdbHat
@@ -114,20 +117,21 @@ exported.
 See `KernRegrFn()` for further comments
 
 """
-function LocalLinearRegression(y,x,xGrid,h,vv = :all,DoCovb=true,KernelFun=GaussianKernel)
+function LocalLinearRegression(y0,x0,xGrid,h,vv=:all,DoCovb=true,KernelFun=GaussianKernel)
 
     if vv != :all
-        (y,x) = (y[vv],x[vv])
+        (y,x) = (view(y0,vv),view(x0,vv))
+    else
+        (y,x) = (y0,x0)
     end
     c = ones(length(y))
 
     Ngrid = length(xGrid)                  #number of grid points
 
     (aHat,StdaHat) = (fill(NaN,Ngrid),fill(NaN,Ngrid))         #b[x(t)]
-    for i = 1:Ngrid                        #loop over elements in xGrid
+    for i in 1:Ngrid                        #loop over elements in xGrid
         zi  = (x .- xGrid[i])/h
-        w   = KernelFun.(zi)
-        w05 = sqrt.(w)
+        w05 = sqrt.(KernelFun.(zi))
         x2  = hcat(c,x .- xGrid[i])
         if DoCovb
             (b_i,_,_,Covb_i,) = OlsNW(w05.*y,w05.*x2,0)
@@ -158,18 +162,50 @@ function CrossValidateKernelR(y,x,hM)
     T    = length(y)
     Nh   = length(hM)
 
-    EPEM = fill(NaN,T,Nh)
+    CVM = fill(NaN,T,Nh)
     for t in 1:T
         local v_No_t
         v_No_t = setdiff(1:T,t)     #exclude t from estimation
         for (j,h) in enumerate(hM)                #loop over hM[j] values
             local b_t
             b_t,      = KernelRegression(y,x,x[t],h,v_No_t,false)  #calculate fitted b(x[t])
-            EPEM[t,j] = (y[t] - b_t[1])^2     #out-of-sample error for obs t
+            CVM[t,j] = (y[t] - b_t[1])^2     #out-of-sample error for obs t
         end
     end
 
-    EPE = mean(EPEM,dims=1)'
+    CV = vec(mean(CVM,dims=1))
 
-    return EPE
+    return CV
+end
+
+
+"""
+    CrossValidateKernelR2(y,x,h,KernelFun=GaussianKernel)
+
+Cross-validation of kernel regression. Much faster version, at
+the cost of more complicated code (using threads and in-place).
+
+"""
+function CrossValidateKernelR2(y,x,h,KernelFun=GaussianKernel)
+
+  (T,Nh) = (length(y),length(h))
+
+  CVM = fill(NaN,T,Nh)
+  Threads.@threads for i = 1:Nh            #loop over h
+    local zi,w
+    (zi,w) = (similar(x),similar(x))
+    for t = 1:T                                #loop over t
+      local b_t
+      @. zi     = (x - x[t])/h[i]            #in-place
+      @. w      = KernelFun(zi)
+      w[t]      = 0.0                        #effectively disregarding obs t
+      b_t       = dot(w,y)/sum(w)
+      CVM[t,i] = (y[t] - b_t)^2
+    end
+  end
+
+  CV = vec(mean(CVM,dims=1))
+
+  return CV
+
 end

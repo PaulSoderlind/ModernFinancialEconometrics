@@ -1,12 +1,14 @@
 module FinEcmt_KernelRegression
 
-using Statistics
+using Statistics, LinearAlgebra
 
 export EpanechnikovKernel, GaussianKernel, KernelDensity, KernelRegression,
-LocalLinearRegression, UniformKernel, hRuleOfThumb, CrossValidateKernelR
+LocalLinearRegression, UniformKernel, hRuleOfThumb, CrossValidateKernelR2,
+CrossValidateKernelR
 
-include("CovNW.jl")                   #used here
 include("KernelRegression.jl")
+include("CovNW.jl")                   #used here
 include("Ols.jl")                     #used here
+include("UtilityFunctions.jl")        #used here
 
 end
