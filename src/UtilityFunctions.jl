@@ -84,32 +84,33 @@ end
 """
     lag(x,n=1)
 
-Create a matrix or vector of lagged values.
+Create a array of lagged values, where rows are lagged
 
 ### Input
-- `x::VecOrMat`: T Vector or Txk matrix
+- `x::Array`:    of data
 - `n::Int`:      scalar, order of lag. For instance, 2 puts x[t-2,:] on row t
 
 ### Output
-- `z::Array`:  Txk matrix of lags
+- `z::Array`:    lagged values
 
 """
-function lag(x,n=1)
+function lag(x::AbstractArray,n=1)
 
-  (T,k) = (size(x,1),size(x,2))
+    T = size(x,1)
+    abs(n) < T || throw(ArgumentError("too many lags or leads"))
 
-  if n < 0                                    #leads
-    z = [ x[1-n:T,:]; fill(NaN,(abs(n),k)) ]
-  elseif n == 0                               #no lag or lead
-    z = copy(x)
-  elseif n > 0                                #lags
-    z = [ fill(NaN,(n,k)); x[1:T-n,:] ]
-  end
+    n == 0 && return copy(x)                  #early return if n==0
 
-  isa(x,AbstractVector) && (z = z[:,1])               #z should be vector if x is
+    z = similar(x,Float64)
+    if n < 0                                  #leads
+        selectdim(z,1,1:T+n)   .= selectdim(x,1,1-n:T)
+        selectdim(z,1,T+n+1:T) .= NaN
+    else                                      #lags
+        selectdim(z,1,1:n)   .= NaN
+        selectdim(z,1,n+1:T) .= selectdim(x,1,1:T-n)
+    end
 
-  return z
-
+    return z
 end
 
 
@@ -119,15 +120,15 @@ lag2(x,nVector)
 Create an extended matrix for differen lags.
 
 ### Input
-- `x::VecOrMat`:      T Vector or Txk matrix
+- `x::Array`:      T Vector or Txk matrix
 - `nVector::Int or Vector`: scalar or vector , order of lag, for instance, [1,3]
 
 ### Output
-- `z::Array`:  Tx(k*length(nVector) matrix of lags
+- `z::Array`:  [lag1, lag2, etc]
 
 
 """
-lag2(x,nVector) = hcat([lag(x,s) for s in nVector]...)
+lag2(x,nVector) = reduce(hcat,(lag(x,s) for s in nVector))
 
 
 """

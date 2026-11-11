@@ -1,6 +1,6 @@
 module FinEcmt_OLS
 
-using Statistics, LinearAlgebra, DelimitedFiles, Random, Distributions, StatsBase
+using Statistics, LinearAlgebra, DelimitedFiles, Random, Distributions, Dates, StatsBase
 import Printf
 using FiniteDiff: finite_difference_jacobian as jacobian
 
@@ -9,6 +9,7 @@ JarqueBeraTest, CovNW, CovToCor,
 DeltaMethod, EWportf,
 FindNNPanel, FindNN, FirstDiff,
 IndividualDemean, KolSmirTest,
+EventDummy,
 HistcNorm, HistAsh,
 NWCovPs, OLSyxReplaceNaN, OlsAutoCorr, OlsBasic, OlsBootstrap, OlsGM, OlsNW, RegressionTable,
 OlsR2Test, OlsSure, OlsWhitesTest,RegressionFit, VIF, DiagnosticsTable, DiagnosticsNoniidTable,
@@ -24,6 +25,7 @@ include("BinScatter.jl")
 include("CovNW.jl")
 include("DeltaMethod.jl")
 include("DistributionTests.jl")
+include("EventDummies.jl"),
 include("HistAsh.jl")
 include("Ols.jl")
 include("OlsBootstrap.jl")
